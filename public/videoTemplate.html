@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Uploaded Video Page</title>
+  	<link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
+</head>
+<style>
+  /* Set up basic styles for the page */
+  body {
+    font-family: Roboto, sans-serif;
+    background-color: #363636;
+    color: white;
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* Style the video player */
+  video {
+    width: 1920px;
+    height: 1080px;
+  }
+  
+  /* Style the title and description */
+  #video-title {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin: 1em 0;
+  }
+  
+  #video-description {
+    font-size: 1em;
+    margin-bottom: 2em;
+  }
+  
+  /* Style the button list */
+  .button-list {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  button {
+    background-color: #f1f1f1;
+    border: none;
+    color: #000;
+    padding: 0.5em 1em;
+    border-radius: 3px;
+    font-size: 1em;
+    cursor: pointer;
+  }
+  
+  /* Style the individual buttons */
+  button.like {
+    background-color: #3897f0;
+    color: #fff;
+  }
+  
+  button.dislike {
+    background-color: #e74c3c;
+    color: #fff;
+  }
+  
+  button.share {
+    background-color: #1da1f2;
+    color: #fff;
+  }
+</style>
+
+<!-- HTML markup for the page -->
+<body>
+  <!-- Video Player -->
+  <video controls>
+    <source src="/video?id={VIDEO_ID}" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+
+  <!-- Video Information -->
+  <h1 id="video-title"></h1>
+  <p id="video-description"></p>
+
+  <!-- Video Actions -->
+  <div class="button-list">
+    <button class="like">Like</button>
+    <button class="dislike">Dislike</button>
+    <button class="share">Share</button>
+  </div>
+
+<script>
+const videoId = new URLSearchParams(window.location.search).get("id");
+fetch(`/video?id=${videoId}`)
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.blob();
+  })
+  .then(videoBlob => {
+    const videoUrl = URL.createObjectURL(videoBlob);
+    const videoPlayer = document.querySelector("video");
+    videoPlayer.src = videoUrl;
+  })
+  .catch(error => {
+    console.error("Error retrieving video:", error);
+  });
+
+fetch(`/metadata?id=${videoId}`)
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+  })
+  .then(metadata => {
+    document.querySelector("#video-title").textContent = metadata.title;
+    document.querySelector("#video-description").textContent = metadata.description;
+  })
+  .catch(error => {
+    console.error("Error retrieving video metadata:", error);
+  });
+</script>
+
+</body>
+</html>
